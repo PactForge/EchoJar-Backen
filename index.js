@@ -23,6 +23,16 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
+  try {
+    await mongoose.connection.db.admin().ping();
+    res.json({ status: 'OK', database: 'Connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'Error', database: 'Disconnected', error: err.message });
+  }
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
@@ -41,6 +51,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log('Server running on port ' + PORT);
 });
 ```
